@@ -27,11 +27,11 @@ fn corrupt_letter(c: char, level: usize) -> String {
 
     let mut rng = rand::rng();
 
-    // `choose_multiple` samples `level` items from the slice without replacement.
+    // `sample` samples `level` items from the slice without replacement.
     // It returns an iterator of `&char`, which we can `collect` into a String.
     let diacritics_to_add: String = DIACRITICS
         .iter()
-        .choose_multiple(&mut rng, level)
+        .sample(&mut rng, level)
         .into_iter()
         .collect();
 
