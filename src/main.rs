@@ -8,17 +8,9 @@ static DIACRITICS: LazyLock<Vec<char>> = LazyLock::new(|| {
     // The "Combining Diacritical Marks" Unicode block (U+0300 to U+036F).
     // `filter_map` is used because not all u32 values are valid chars,
     // although all values in this specific range are valid.
-    (0x0300..=0x036F).filter_map(std::char::from_u32).collect()
+    (0x0300..=0x036F).filter_map(char::from_u32).collect()
 });
 
-/// Adds a specified number of random diacritics to a single character.
-///
-/// # Arguments
-/// * `c` - The character to corrupt.
-/// * `level` - The number of diacritics to add.
-///
-/// # Returns
-/// A `String` containing the original character followed by the diacritics.
 fn corrupt_letter(c: char, level: usize) -> String {
     // Avoid adding diacritics to whitespace for better readability.
     if c.is_whitespace() {
@@ -39,14 +31,6 @@ fn corrupt_letter(c: char, level: usize) -> String {
     format!("{}{}", c, diacritics_to_add)
 }
 
-/// Applies a corruption effect to an entire string.
-///
-/// # Arguments
-/// * `text` - The string slice to corrupt.
-/// * `level` - The intensity of the corruption (diacritics per char).
-///
-/// # Returns
-/// A new, corrupted `String`.
 fn corrupt_text(text: &str, level: usize) -> String {
     text.chars().map(|c| corrupt_letter(c, level)).collect()
 }
@@ -66,17 +50,14 @@ fn main() {
     let text_args: &[String];
 
     // Check if the last argument is a number to use as the corruption level.
-    if let Some(last_arg) = args.last() {
-        if let Ok(parsed_level) = last_arg.parse::<usize>() {
-            level = parsed_level;
-            // The text is all arguments except the program name and the level.
-            text_args = &args[1..args.len() - 1];
-        } else {
-            // The last argument is not a number, so it's part of the text.
-            text_args = &args[1..];
-        }
+    // args.len() >= 2 above guarantees last() is Some.
+    let last_arg = args.last().unwrap();
+    if let Ok(parsed_level) = last_arg.parse::<usize>() {
+        level = parsed_level;
+        // The text is all arguments except the program name and the level.
+        text_args = &args[1..args.len() - 1];
     } else {
-        // Should be unreachable due to the length check above, but good for safety.
+        // The last argument is not a number, so it's part of the text.
         text_args = &args[1..];
     }
 
